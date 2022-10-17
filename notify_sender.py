@@ -13,7 +13,7 @@ def get_response(url, headers, params):
     return response
 
 
-def send_message(poll_answer):
+def send_message(poll_answer, chat_id):
     if poll_answer['status'] == 'found' and poll_answer['new_attempts'][0]['is_negative']:
         message_text = f'''
 Преподаватель проверил Вашу работу {poll_answer['new_attempts'][0]['lesson_title']}.
@@ -55,7 +55,7 @@ if __name__ == '__main__':
                 params['timestamp'] = poll_answer['timestamp_to_request']
             elif poll_answer['status'] == 'found':
                 params['timestamp'] = poll_answer['last_attempt_timestamp']
-                send_message(poll_answer)
+                send_message(poll_answer, chat_id)
 
         except requests.exceptions.ReadTimeout:
             logging.info('Истекло время ожидания, повторный запрос...')
