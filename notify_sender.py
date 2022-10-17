@@ -25,24 +25,24 @@ if __name__ == '__main__':
             response = requests.get(dvmn_lp_url, headers=headers, params=params)
             response.raise_for_status()
 
-            poll_answer = response.json()
+            review_check_result = response.json()
 
-            if poll_answer['status'] == 'timeout':
-                params['timestamp'] = poll_answer['timestamp_to_request']
-            elif poll_answer['status'] == 'found':
-                params['timestamp'] = poll_answer['last_attempt_timestamp']
+            if review_check_result['status'] == 'timeout':
+                params['timestamp'] = review_check_result['timestamp_to_request']
+            elif review_check_result['status'] == 'found':
+                params['timestamp'] = review_check_result['last_attempt_timestamp']
 
-                if poll_answer['new_attempts'][0]['is_negative']:
+                if review_check_result['new_attempts'][0]['is_negative']:
                     message_text = f'''
-                    Преподаватель проверил Вашу работу {poll_answer['new_attempts'][0]['lesson_title']}.
+                    Преподаватель проверил Вашу работу {review_check_result['new_attempts'][0]['lesson_title']}.
                     К сожалению, в работе нашлись ошибки.
-                    Ссылка на урок: {poll_answer['new_attempts'][0]['lesson_url']}'''
+                    Ссылка на урок: {review_check_result['new_attempts'][0]['lesson_url']}'''
 
                 else:
                     message_text = f'''
-                    Преподаватель проверил Вашу работу {poll_answer['new_attempts'][0]['lesson_title']}.
+                    Преподаватель проверил Вашу работу {review_check_result['new_attempts'][0]['lesson_title']}.
                     Работа принята!
-                    Ссылка на урок: {poll_answer['new_attempts'][0]['lesson_url']}'''
+                    Ссылка на урок: {review_check_result['new_attempts'][0]['lesson_url']}'''
 
                 bot.send_message(
                     text=dedent(message_text),
