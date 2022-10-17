@@ -1,0 +1,4 @@
+environs==9.5.0
+logger==1.4
+python-telegram-bot==13.14
+requests==2.28.1
