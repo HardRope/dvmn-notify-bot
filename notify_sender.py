@@ -1,9 +1,10 @@
+import logging
 from time import sleep
 from textwrap import dedent
+
+import telegram
 import requests
 from environs import Env
-import logging
-import telegram
 
 if __name__ == '__main__':
     env = Env()
