@@ -6,7 +6,7 @@ This program created to send you notifications about new reviewed works from [De
 To use script, you need to create `.env` with some tokens:
 * DVMN_TOKEN=[Devman](https://dvmn.org/api/docs/) API token
 * TG_TOKEN=telegram bot token
-* CHAT_ID=your telegram chat id
+* TG_CHAT_ID=your telegram chat id
 
 Help with obtain TG-Token: [Bot Father](https://telegram.me/BotFather)
 

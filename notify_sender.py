@@ -38,7 +38,7 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
 
     tg_token = env('TG_TOKEN')
-    chat_id = env('CHAT_ID')
+    tg_chat_id = env('TG_CHAT_ID')
     bot = telegram.Bot(token=tg_token)
 
     dvmn_lp_url = 'https://dvmn.org/api/long_polling/'
@@ -55,7 +55,7 @@ if __name__ == '__main__':
                 params['timestamp'] = poll_answer['timestamp_to_request']
             elif poll_answer['status'] == 'found':
                 params['timestamp'] = poll_answer['last_attempt_timestamp']
-                send_message(poll_answer, chat_id)
+                send_message(poll_answer, tg_chat_id)
 
         except requests.exceptions.ReadTimeout:
             logging.info('Истекло время ожидания, повторный запрос...')
