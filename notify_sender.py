@@ -1,36 +1,9 @@
 from time import sleep
+from textwrap import dedent
 import requests
 from environs import Env
 import logging
 import telegram
-
-def get_response(url, headers, params):
-    if params:
-        response = requests.get(url, headers=headers, params=params)
-    else:
-        response = requests.get(url, headers=headers)
-    response.raise_for_status()
-    return response
-
-
-def send_message(poll_answer, chat_id):
-    if poll_answer['status'] == 'found' and poll_answer['new_attempts'][0]['is_negative']:
-        message_text = f'''
-Преподаватель проверил Вашу работу {poll_answer['new_attempts'][0]['lesson_title']}.
-К сожалению, в работе нашлись ошибки.
-Ссылка на урок: {poll_answer['new_attempts'][0]['lesson_url']}'''
-
-    elif poll_answer['status'] == 'found':
-        message_text = f'''
-Преподаватель проверил Вашу работу {poll_answer['new_attempts'][0]['lesson_title']}.
-Работа принята!
-Ссылка на урок: {poll_answer['new_attempts'][0]['lesson_url']}'''
-
-    bot.send_message(
-        text=message_text,
-        chat_id=chat_id,
-    )
-
 
 if __name__ == '__main__':
     env = Env()
@@ -48,14 +21,32 @@ if __name__ == '__main__':
 
     while True:
         try:
-            response = get_response(dvmn_lp_url, headers, params)
+            response = requests.get(dvmn_lp_url, headers=headers, params=params)
+            response.raise_for_status()
+
             poll_answer = response.json()
 
             if poll_answer['status'] == 'timeout':
                 params['timestamp'] = poll_answer['timestamp_to_request']
             elif poll_answer['status'] == 'found':
                 params['timestamp'] = poll_answer['last_attempt_timestamp']
-                send_message(poll_answer, tg_chat_id)
+
+                if poll_answer['new_attempts'][0]['is_negative']:
+                    message_text = f'''
+                    Преподаватель проверил Вашу работу {poll_answer['new_attempts'][0]['lesson_title']}.
+                    К сожалению, в работе нашлись ошибки.
+                    Ссылка на урок: {poll_answer['new_attempts'][0]['lesson_url']}'''
+
+                else:
+                    message_text = f'''
+                    Преподаватель проверил Вашу работу {poll_answer['new_attempts'][0]['lesson_title']}.
+                    Работа принята!
+                    Ссылка на урок: {poll_answer['new_attempts'][0]['lesson_url']}'''
+
+                bot.send_message(
+                    text=dedent(message_text),
+                    chat_id=tg_chat_id,
+                )
 
         except requests.exceptions.ReadTimeout:
             logging.info('Истекло время ожидания, повторный запрос...')
