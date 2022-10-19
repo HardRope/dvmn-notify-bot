@@ -1,4 +1,5 @@
 import logging
+import traceback
 from time import sleep
 from textwrap import dedent
 
@@ -9,19 +10,21 @@ from environs import Env
 
 class TelegramLogsHandler(logging.Handler):
 
-     def __init__(self, tg_bot, tg_chat_id):
-         super().__init__()
-         logging.basicConfig(
-             format='%(asctime)s - %(name)s - %(levelname)s -  %(message)s',
-             level=logging.INFO,
-             datefmt='%m/%d/%Y %I:%M:%S %p'
-         )
-         self.tg_bot = tg_bot
-         self.tg_chat_id = tg_chat_id
+    def __init__(self, tg_bot, tg_chat_id):
+        super().__init__()
+        logging.basicConfig(
+            format='%(asctime)s - %(name)s - %(levelname)s -  %(message)s',
+            level=logging.INFO,
+            datefmt='%m/%d/%Y %I:%M:%S %p'
+        )
+        self.tg_bot = tg_bot
+        self.tg_chat_id = tg_chat_id
 
-     def emit(self, record):
-         log_entry = self.format(record)
-         self.tg_bot.send_message(chat_id=self.tg_chat_id, text=log_entry)
+    def emit(self, record):
+        log_entry = f'{record.name} - {record.levelname} - {record.msg}'
+        if record.args:
+            log_entry += f'\n{record.args}'
+        self.tg_bot.send_message(chat_id=self.tg_chat_id, text=log_entry)
 
 
 if __name__ == '__main__':
@@ -71,10 +74,14 @@ if __name__ == '__main__':
                 )
 
         except requests.exceptions.ReadTimeout:
-            logger.info('Истекло время ожидания, повторный запрос...')
+            logger.info('Истекло время ожидания, повторный запрос...', traceback.format_exc())
             continue
 
         except requests.ConnectionError:
-            logger.info('Ошибка соединения, повторная попытка через 60 секунд.')
+            logger.info('Ошибка соединения, повторная попытка через 60 секунд.', traceback.format_exc())
             sleep(60)
+            continue
+
+        except Exception:
+            logger.warning('Непредвиденная ошибка!', traceback.format_exc())
             continue
