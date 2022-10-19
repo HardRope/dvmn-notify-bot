@@ -1,5 +1,5 @@
 import logging
-import traceback
+import sys
 from time import sleep
 from textwrap import dedent
 
@@ -7,23 +7,26 @@ import telegram
 import requests
 from environs import Env
 
+logger = logging.getLogger('notify_sender')
 
 class TelegramLogsHandler(logging.Handler):
 
     def __init__(self, tg_bot, tg_chat_id):
         super().__init__()
         logging.basicConfig(
-            format='%(asctime)s - %(name)s - %(levelname)s -  %(message)s',
             level=logging.INFO,
+            format='%(asctime)s - %(name)s - %(levelname)s -  %(message)s - %(exc_info)s',
             datefmt='%m/%d/%Y %I:%M:%S %p'
         )
+
+        logging_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s -  %(message)s - %(exc_info)s')
+        self.setFormatter(fmt=logging_format)
+
         self.tg_bot = tg_bot
         self.tg_chat_id = tg_chat_id
 
     def emit(self, record):
-        log_entry = f'{record.name} - {record.levelname} - {record.msg}'
-        if record.args:
-            log_entry += f'\n{record.args}'
+        log_entry = self.format(record)
         self.tg_bot.send_message(chat_id=self.tg_chat_id, text=log_entry)
 
 
@@ -35,7 +38,6 @@ if __name__ == '__main__':
     tg_chat_id = env('TG_CHAT_ID')
     tg_bot = telegram.Bot(token=tg_token)
 
-    logger = logging.getLogger('notify_sender')
     logger.addHandler(TelegramLogsHandler(tg_bot=tg_bot, tg_chat_id=tg_chat_id))
 
     dvmn_lp_url = 'https://dvmn.org/api/long_polling/'
@@ -74,14 +76,14 @@ if __name__ == '__main__':
                 )
 
         except requests.exceptions.ReadTimeout:
-            logger.info('Истекло время ожидания, повторный запрос...', traceback.format_exc())
+            logger.info('Истекло время ожидания, повторный запрос...')
             continue
 
         except requests.ConnectionError:
-            logger.info('Ошибка соединения, повторная попытка через 60 секунд.', traceback.format_exc())
+            logger.info('Ошибка соединения, повторная попытка через 60 секунд.')
             sleep(60)
             continue
 
         except Exception:
-            logger.warning('Непредвиденная ошибка!', traceback.format_exc())
+            logger.warning('Непредвиденная ошибка!', exc_info=sys.exc_info())
             continue
