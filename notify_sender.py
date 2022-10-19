@@ -35,7 +35,7 @@ if __name__ == '__main__':
     tg_chat_id = env('TG_CHAT_ID')
     tg_bot = telegram.Bot(token=tg_token)
 
-    logger = logging.getLogger('telegram_bot')
+    logger = logging.getLogger('notify_sender')
     logger.addHandler(TelegramLogsHandler(tg_bot=tg_bot, tg_chat_id=tg_chat_id))
 
     dvmn_lp_url = 'https://dvmn.org/api/long_polling/'
