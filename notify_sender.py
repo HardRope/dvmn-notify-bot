@@ -13,11 +13,6 @@ class TelegramLogsHandler(logging.Handler):
 
     def __init__(self, tg_bot, tg_chat_id):
         super().__init__()
-        logging.basicConfig(
-            level=logging.INFO,
-            format='%(asctime)s - %(name)s - %(levelname)s -  %(message)s - %(exc_info)s',
-            datefmt='%m/%d/%Y %I:%M:%S %p'
-        )
 
         logging_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s -  %(message)s - %(exc_info)s')
         self.setFormatter(fmt=logging_format)
@@ -38,6 +33,11 @@ if __name__ == '__main__':
     tg_chat_id = env('TG_CHAT_ID')
     tg_bot = telegram.Bot(token=tg_token)
 
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s -  %(message)s - %(exc_info)s',
+        datefmt='%m/%d/%Y %I:%M:%S %p'
+    )
     logger.addHandler(TelegramLogsHandler(tg_bot=tg_bot, tg_chat_id=tg_chat_id))
 
     dvmn_lp_url = 'https://dvmn.org/api/long_polling/'
