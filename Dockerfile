@@ -1,6 +1,6 @@
 FROM python:3.10.9-slim
-WORKDIR .
-COPY . .
-RUN pip install --no-cache-dir -r requirements.txt
-EXPOSE 5000
+COPY requirements.txt /opt/notify-bot
+WORKDIR /opt/notify-bot
+RUN pip install -r requirements.txt
+COPY . /opt/notify-bot
 CMD ["python", "./notify_sender.py"]
