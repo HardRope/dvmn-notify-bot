@@ -1,6 +1,6 @@
 FROM python:3.10.9-slim
-COPY requirements.txt /opt/notify-bot
-WORKDIR /opt/notify-bot
+COPY requirements.txt .
+WORKDIR .
 RUN pip install -r requirements.txt
-COPY . /opt/notify-bot
+COPY . .
 CMD ["python", "./notify_sender.py"]
